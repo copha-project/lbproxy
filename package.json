@@ -1,0 +1,15 @@
+{
+  "name": "lbproxy",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "",
+    "server": "node index.js server",
+    "start": "node index.js",
+    "test": "node test/index.test.js"
+  },
+  "dependencies": {
+    "binary": "^0.3.0"
+  }
+}
