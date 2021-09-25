@@ -3,16 +3,28 @@
   "description": "a proxy server with load balance",
   "version": "0.0.1",
   "author": "yxwzaxns",
+  "keywords": [
+    "copha",
+    "cli",
+    "load balance",
+    "proxy",
+    "socks5",
+    "nodejs"
+  ],
   "homepage": "https://github.com/copha-project/lbproxy.git",
   "main": "index.js",
+  "bin": {
+    "lbproxy": "./bin/cli.js"
+  },
   "license": "MIT",
   "scripts": {
     "build": "",
-    "start": "node index.js",
+    "start": "DEBUG=* node ./bin/cli.js",
     "test": "node test/index.test.js"
   },
   "dependencies": {
     "binary": "^0.3.0",
+    "debug": "^4.3.2",
     "socks": "^2.6.1"
   }
 }

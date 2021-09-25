@@ -1,0 +1,1 @@
+exports.lbproxy = require('./src')
