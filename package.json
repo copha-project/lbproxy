@@ -1,15 +1,18 @@
 {
-  "name": "lbproxy",
-  "version": "1.0.0",
+  "name": "@copha/lbproxy",
+  "description": "a proxy server with load balance",
+  "version": "0.0.1",
+  "author": "yxwzaxns",
+  "homepage": "https://github.com/copha-project/lbproxy.git",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
     "build": "",
-    "server": "node index.js server",
     "start": "node index.js",
     "test": "node test/index.test.js"
   },
   "dependencies": {
-    "binary": "^0.3.0"
+    "binary": "^0.3.0",
+    "socks": "^2.6.1"
   }
 }
