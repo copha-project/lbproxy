@@ -4,7 +4,6 @@ npm-debug.log
 npm-debug.log.*
 thumbs.db
 yarn-error.log
-/dist/*
 /dev
 /docs/_site
 /docs/.jekyll-cache
