@@ -246,19 +246,7 @@ class SocksServer {
 											port : socket.remotePort
 										};
 
-									SocksClient.createConnection({
-										proxy: {
-											host: 'localhost', // ipv4 or ipv6 or hostname
-											port: 1086,
-											type: 5 // Proxy version (4 or 5)
-											},
-											command: 'connect', // SOCKS command (createConnection factory function only supports the connect command)
-										
-											destination: {
-											host: args.dst.addr, // github.com (hostname lookups are supported with SOCKS v4a and 5)
-											port: args.dst.port
-											}
-									},(err, info) => {
+									SocksClient.createConnection(self.buildSocksOptions(args.dst.addr,args.dst.port),(err, info) => {
 										if (!err) {
 											debug("connect proxy: ",info.socket.remoteAddress)
 											let destination = info.socket
@@ -433,6 +421,24 @@ class SocksServer {
 				self.activeSessions.splice(self.activeSessions.indexOf(socket), 1);
 			});
 		});
+	}
+	buildSocksOptions(addr,port){
+		return {
+			proxy: this.selectProxy(),
+			command: 'connect', // SOCKS command (createConnection factory function only supports the connect command)
+		
+			destination: {
+				host: addr, // github.com (hostname lookups are supported with SOCKS v4a and 5)
+				port: port
+			}
+		}
+	}
+	selectProxy(){
+		return {
+			host: 'localhost', // ipv4 or ipv6 or hostname
+			port: 1086,
+			type: 5 // Proxy version (4 or 5)
+		}
 	}
 }
 

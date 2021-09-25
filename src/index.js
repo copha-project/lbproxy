@@ -39,10 +39,11 @@ exports.createServer = function(){
             console.log(args);
           });
     }
-    const server = new socks.SocksServer()
-    initServer(server.server)
-    server.server.listen(1080)
-    debug('server done')
+    const server = socks.createServer()
+    initServer(server)
+    server.listen(1080)
+    console.log(`lbproxy server run port at :`,server.address().port)
+    debug(`lbproxy server run at :`,server.address())
 }
 
 exports.Lbserver = socks
