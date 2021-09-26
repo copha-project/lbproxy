@@ -1,7 +1,10 @@
 const socks = require('./socks5')
 const debug = require('debug')('lbproxy')
 
-exports.createServer = function(){
+exports.createServer = function(options){
+    const host = options.host || '127.0.0.1'
+    const port = options.port || 1080
+
     function initServer(server){
         server.on('proxyConnect', (info, destination) => {
             console.log('connected to remote server at %s:%d', info.address, info.port);
@@ -41,9 +44,9 @@ exports.createServer = function(){
     }
     const server = socks.createServer()
     initServer(server)
-    server.listen(1080)
-    console.log(`lbproxy server run port at :`,server.address().port)
-    debug(`lbproxy server run at :`,server.address())
+    server.listen(port,host,()=>{
+      console.log(`lbproxy server run port at : ${server.address().address}:${server.address().port}`)
+    })
 }
 
 exports.Lbserver = socks

@@ -14,16 +14,17 @@
   "homepage": "https://github.com/copha-project/lbproxy.git",
   "main": "index.js",
   "bin": {
-    "lbproxy": "./bin/cli.js"
+    "lbproxy": "./bin/index.js"
   },
   "license": "MIT",
   "scripts": {
     "build": "./node_modules/.bin/babel --verbose src/ -d dist -D",
-    "start": "DEBUG=* node ./bin/cli.js",
+    "start": "DEBUG=* ./bin/dev.js",
     "test": "node test/index.test.js"
   },
   "dependencies": {
     "binary": "^0.3.0",
+    "commander": "^8.2.0",
     "debug": "^4.3.2",
     "socks": "^2.6.1"
   },
