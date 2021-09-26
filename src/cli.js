@@ -1,7 +1,7 @@
 const pkg = require('../package')
-const debug = require('debug')('lbproxy')
+const {debug} = require('./common')
 const commander = require('commander')
-const {createServer} = require('./index')
+const { commandResolver, showProxys } = require('./index')
 
 function createCommander(program) {
     program.configureHelp({
@@ -15,8 +15,14 @@ function createCommander(program) {
         .version(pkg.version, '-v, --version', 'lbproxy version')
         .option('-H --host <host>',"declare server bind address, default: 127.0.0.1")
         .option('-p --port <port>',"declare server bind port, default: 1080")
-        .option('-s --list <list>',"proxy config data, eg: ip:port[;ip:port]")
-        .option('-d --daemon', "run at daemon mode")
+        .option('-D --daemon', "run at daemon mode")
+        .option('-a --add <proxy>',"add a new proxy config")
+        .option('-d --remove <proxy></proxy>',"remove a existed proxy config")
+        .option('--remove-all',"remove all proxy")
+    
+    program.command('list')
+        .description('list proxy config')
+        .action(showProxys)
 }
 
 async function main(){
@@ -24,7 +30,7 @@ async function main(){
     createCommander(program)
     const parseData = await program.parseAsync()
     const options = parseData.opts()
-    createServer(options)
+    return commandResolver(options)
 }
 
 module.exports = () => {
