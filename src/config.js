@@ -3,7 +3,12 @@ const path = require('path')
 const os = require('os')
 const fs = require('fs')
 const Utils = require('uni-utils')
+const writeFileAtomic = require('write-file-atomic')
+const dotProp = require('dot-prop')
 
+const configDirectory = path.join(Utils.homedir(),'.config/lbproxy')
+const mkdirOptions = {mode: 0o0700, recursive: true}
+const writeFileOptions = {mode: 0o0600}
 
 const DefaultConfig = {
     proxy: []
@@ -12,22 +17,76 @@ const DefaultConfig = {
 const CONFIG_PROXY = "proxy"
 
 class Config{
-    #config = null
+    #configPath = path.join(configDirectory,'config.json')
     constructor(){
-
-    }
-    get proxys(){
-        if(!this.#config){
-            const ConfigStore = await import("configStore")
-            this.#config = new Configstore('lbproxy', DefaultConfig)
+        this.all = {
+            ...DefaultConfig,
+            ...this.all
         }
-        return this.#config.get(CONFIG_PROXY)
+    }
+    get all(){
+        try {
+			return Utils.readJsonSync(this.#configPath)
+		} catch (error) {
+			// Create directory if it doesn't exist
+			if (error.code === 'ENOENT') {
+				return {}
+			}
+			// Improve the message of permission errors
+			if (error.code === 'EACCES') {
+				error.message = `${error.message}\n${permissionError}\n`;
+			}
+
+			// Empty the file if it encounters invalid JSON
+			if (error.name === 'SyntaxError') {
+				writeFileAtomic.sync(this.#configPath, '', writeFileOptions)
+				return {}
+			}
+
+			throw error
+		}
+    }
+    set all(value){
+        try {
+			// Make sure the folder exists as it could have been deleted in the meantime
+			fs.mkdirSync(path.dirname(this.#configPath), mkdirOptions)
+
+			writeFileAtomic.sync(this.#configPath, JSON.stringify(value, undefined, '\t'), writeFileOptions);
+		} catch (error) {
+			// Improve the message of permission errors
+			if (error.code === 'EACCES') {
+				error.message = `${error.message}\n${permissionError}\n`
+			}
+			throw error
+		}
+    }
+
+    get(key) {
+		return dotProp.get(this.all, key);
+	}
+
+	set(key, value) {
+		const config = this.all;
+
+		if (arguments.length === 1) {
+			for (const k of Object.keys(key)) {
+				dotProp.set(config, k, key[k]);
+			}
+		} else {
+			dotProp.set(config, key, value);
+		}
+
+		this.all = config;
+	}
+
+    get proxys(){
+        return this.get(CONFIG_PROXY)
     }
     addProxy(proxy){
-        this.#config.set(CONFIG_PROXY,this.proxys.push(proxy))
+        this.set(CONFIG_PROXY,this.proxys.push(proxy))
     }
     delProxy(proxy){
-        this.#config.set(CONFIG_PROXY,this.proxys.splice(this.proxys.indexOf(proxy), 1))
+        this.set(CONFIG_PROXY,this.proxys.splice(this.proxys.indexOf(proxy), 1))
     }
 }
 
