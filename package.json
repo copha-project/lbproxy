@@ -1,7 +1,7 @@
 {
   "name": "@copha/lbproxy",
   "description": "a proxy server with load balance",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "yxwzaxns",
   "keywords": [
     "copha",
@@ -18,7 +18,7 @@
   },
   "license": "MIT",
   "scripts": {
-    "build": "./node_modules/.bin/babel --verbose src/ -d dist -D",
+    "build": "./node_modules/.bin/babel --verbose -s inline src/ -d dist -D",
     "start": "DEBUG=lbproxy ./node_modules/.bin/babel-node -- ./bin/dev.js",
     "test": "node test/index.test.js"
   },
@@ -26,7 +26,10 @@
     "binary": "^0.3.0",
     "commander": "^8.2.0",
     "debug": "^4.3.2",
-    "socks": "^2.6.1"
+    "dot-prop": "^6.0.1",
+    "socks": "^2.6.1",
+    "uni-utils": "^1.0.11",
+    "write-file-atomic": "^3.0.3"
   },
   "devDependencies": {
     "@babel/cli": "^7.15.7",
