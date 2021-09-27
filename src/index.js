@@ -1,5 +1,6 @@
 const socks = require('./socks5')
-const debug = require('debug')('lbproxy')
+const {debug} = require('./common')
+const Core = require('./core')
 
 exports.createServer = function(options){
     const host = options.host || '127.0.0.1'
@@ -47,6 +48,24 @@ exports.createServer = function(options){
     server.listen(port,host,()=>{
       console.log(`lbproxy server run port at : ${server.address().address}:${server.address().port}`)
     })
+}
+
+exports.commandResolver = (options) => {
+  console.log(options)
+}
+
+exports.showProxys = () => {
+  const list = new Core().listProxy()
+  console.log('Proxy List:')
+  console.table(
+    list.map(item => {
+        return {
+            Type: item.type,
+            Ip: item.ip,
+            Port: item.port
+        }
+    })
+  )
 }
 
 exports.Lbserver = socks

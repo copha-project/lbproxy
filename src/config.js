@@ -1,5 +1,9 @@
 const {debug} = require('./common')
-const Configstore =  require('configstore')
+const path = require('path')
+const os = require('os')
+const fs = require('fs')
+const Utils = require('uni-utils')
+
 
 const DefaultConfig = {
     proxy: []
@@ -8,11 +12,15 @@ const DefaultConfig = {
 const CONFIG_PROXY = "proxy"
 
 class Config{
-    #config = new Configstore('lbproxy', DefaultConfig)
+    #config = null
     constructor(){
 
     }
     get proxys(){
+        if(!this.#config){
+            const ConfigStore = await import("configStore")
+            this.#config = new Configstore('lbproxy', DefaultConfig)
+        }
         return this.#config.get(CONFIG_PROXY)
     }
     addProxy(proxy){
