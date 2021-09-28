@@ -1,8 +1,11 @@
+const path = require('path')
+const fs = require('fs')
 const socks = require('./socks5')
 const {debug} = require('./common')
 const Core = require('./core')
+const Utils = require('uni-utils')
 
-exports.createServer = function(options){
+function createServer(options){
     const host = options.host || '127.0.0.1'
     const port = options.port || 1080
 
@@ -45,27 +48,71 @@ exports.createServer = function(options){
     }
     const server = socks.createServer()
     initServer(server)
+    server.on('error', (e) => {
+      if (e.code === 'EADDRINUSE') {
+        console.error('Address in use')
+      }else{
+        console.log(e.message)
+      }
+    })
+ 
     server.listen(port,host,()=>{
       console.log(`lbproxy server run port at : ${server.address().address}:${server.address().port}`)
     })
 }
 
-exports.commandResolver = (options) => {
-  console.log(options)
-}
+exports.commandResolver = async (options) => {
+  debug(options)
+  const core = new Core()
 
-exports.showProxys = () => {
-  const list = new Core().listProxy()
-  console.log('Proxy List:')
-  console.table(
-    list.map(item => {
-        return {
+  if(options.stop){
+    const pid = 11354
+    return process.kill(pid)
+  }
+
+  if(options.add){
+    return core.addProxy(options.add)
+  }
+
+  if(options.remove){
+    return core.removeProxy(options.remove)
+  }
+
+  if(options.list){
+    const list = core.listProxy()
+    if(list.length){
+      console.log('Proxy List:')
+      console.table(
+        list.map(item => ({
             Type: item.type,
-            Ip: item.ip,
+            Host: item.host,
             Port: item.port
-        }
-    })
-  )
+        }))
+      )
+    }else{
+      console.log('no proxy add')
+    }
+  }
+
+  // start service
+  if(!Object.keys(options).length || options.host || options.port || options.daemon){
+    if(options.daemon){
+      const Entry = "dev"
+      Utils.createProcess(
+          path.resolve(__dirname,`../bin/${Entry}.js`),
+          ['--host',options.host,'--port',options.port]
+        )
+      .then(p=>{
+
+        console.log(`pid: ${p.pid}`)
+      })
+      .catch(err=>{
+        console.log(`Error: ${err.msg}`)
+      })
+      return
+    }
+    return createServer(options)
+  }
 }
 
 exports.Lbserver = socks
