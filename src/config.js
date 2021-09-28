@@ -66,28 +66,30 @@ class Config{
 	}
 
 	set(key, value) {
-		const config = this.all;
-
-		if (arguments.length === 1) {
-			for (const k of Object.keys(key)) {
-				dotProp.set(config, k, key[k]);
-			}
-		} else {
-			dotProp.set(config, key, value);
-		}
-
-		this.all = config;
+		const config = this.all
+		dotProp.set(config, key, value)
+		this.all = config
 	}
 
     get proxys(){
         return this.get(CONFIG_PROXY)
     }
+
     addProxy(proxy){
-        this.set(CONFIG_PROXY,this.proxys.push(proxy))
+		const proxys = Array.isArray(this.proxys) ? this.proxys : []
+		proxys.push(proxy)
+        this.set(CONFIG_PROXY,proxys)
     }
+
     delProxy(proxy){
-        this.set(CONFIG_PROXY,this.proxys.splice(this.proxys.indexOf(proxy), 1))
+        this.set(CONFIG_PROXY,this.proxys.filter(e=>
+			!(e.host === proxy.host && e.port === proxy.port)
+		))
     }
+	
+	delProxys(){
+		this.set(CONFIG_PROXY,[])
+	}
 }
 
 module.exports = Config

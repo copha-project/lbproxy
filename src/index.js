@@ -75,7 +75,11 @@ exports.commandResolver = async (options) => {
   }
 
   if(options.remove){
-    return core.removeProxy(options.remove)
+    return core.delProxy(options.remove)
+  }
+
+  if(options.removeAll){
+    return core.delProxys()
   }
 
   if(options.list){
@@ -92,6 +96,7 @@ exports.commandResolver = async (options) => {
     }else{
       console.log('no proxy add')
     }
+    return
   }
 
   // start service

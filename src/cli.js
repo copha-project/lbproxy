@@ -33,6 +33,7 @@ async function main(){
 
 module.exports = () => {
     main().catch(e=>{
+        console.log(`Running error: ${e.message}`)
         debug(e)
     })
 }
