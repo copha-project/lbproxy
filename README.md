@@ -3,6 +3,8 @@
 
 A proxy server with load balance
 
+> now support socks5 only
+
 ## Install
 ```
 npm i -g @copha/lbproxy 
