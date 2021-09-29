@@ -36,4 +36,4 @@ exports.RFC_1929_REPLIES = {
 	SUCCEEDED : 0x00
 };
 
-exports.RFC_1929_VERSION = 0x01;
+exports.RFC_1929_VERSION = 0x01

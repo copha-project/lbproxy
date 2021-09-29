@@ -2041,10 +2041,10 @@ unbox-primitive@^1.0.1:
     has-symbols "^1.0.2"
     which-boxed-primitive "^1.0.2"
 
-uni-utils@^1.0.11:
-  version "1.0.11"
-  resolved "https://registry.yarnpkg.com/uni-utils/-/uni-utils-1.0.11.tgz#21dbfd77eb390110d380235ab27aeda4957a44fc"
-  integrity sha512-+uMqJiV/aamBmvGhCzILV93ZJ9irCPoowzHqIFnZLYFPJCMVfCTp3WnMvdVBmIjbaqqTDUQ4AtiGxAf+vUtyBw==
+uni-utils@^1.0.12:
+  version "1.0.12"
+  resolved "https://registry.yarnpkg.com/uni-utils/-/uni-utils-1.0.12.tgz#a024b39a79584ec6bc1bf6f0d491e5865f99a937"
+  integrity sha512-l3b4sqYyeqyrYM7j8PGwuUUk2HMNb3kYH8gWqtGwvzulK1WMPQyiKJJr+nZY4rzwhT52wIx7uXBBla0eDUDaIA==
   dependencies:
     cli-progress "^3.8.0"
     fast-csv "^4.3.6"

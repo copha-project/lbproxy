@@ -66,7 +66,7 @@ exports.commandResolver = async (options) => {
   const core = new Core()
 
   if(options.stop){
-    const pid = 11354
+    const pid = core.config.get('pid')
     return process.kill(pid)
   }
 
@@ -103,17 +103,16 @@ exports.commandResolver = async (options) => {
   if(!Object.keys(options).length || options.host || options.port || options.daemon){
     if(options.daemon){
       const Entry = "dev"
-      Utils.createProcess(
-          path.resolve(__dirname,`../bin/${Entry}.js`),
-          ['--host',options.host,'--port',options.port]
-        )
-      .then(p=>{
-
-        console.log(`pid: ${p.pid}`)
-      })
-      .catch(err=>{
-        console.log(`Error: ${err.msg}`)
-      })
+      try {
+        const p = await Utils.createProcess(
+            path.resolve(__dirname,`../bin/${Entry}.js`),
+            ['--host',options.host,'--port',options.port]
+          )
+        core.config.set('pid', p.pid)
+        console.log(`server pid on : ${p.pid}`)
+      } catch (err) {
+        console.log(`Error: ${err.message || err.msg}`)
+      }
       return
     }
     return createServer(options)

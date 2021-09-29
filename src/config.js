@@ -11,7 +11,8 @@ const mkdirOptions = {mode: 0o0700, recursive: true}
 const writeFileOptions = {mode: 0o0600}
 
 const DefaultConfig = {
-    proxy: []
+    proxy: [],
+    pid: 0
 }
 
 const CONFIG_PROXY = "proxy"
@@ -62,7 +63,7 @@ class Config{
     }
 
     get(key) {
-		return dotProp.get(this.all, key);
+		return dotProp.get(this.all, key)
 	}
 
 	set(key, value) {
