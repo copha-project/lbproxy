@@ -12,6 +12,15 @@ class Core {
         this.config = new Config()
     }
 
+    getProxy(){
+        const proxys = this.listProxy()
+        if(proxys.length==0){
+            throw Error('proxy pool not has proxy.')
+        }
+        // todo 添加获取代理的策略
+        return proxys[0]
+    }
+
     listProxy(){
         return this.config.proxys
     }
@@ -46,3 +55,7 @@ class Core {
 }
 
 module.exports = Core
+module.exports.getProxy = ()=>{
+    const core = new Core()
+    return core.getProxy()
+}

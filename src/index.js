@@ -47,7 +47,7 @@ function createServer(options){
           });
     }
     const server = socks.createServer()
-    initServer(server)
+    // initServer(server)
     server.on('error', (e) => {
       if (e.code === 'EADDRINUSE') {
         console.error('Address in use')
