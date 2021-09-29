@@ -1,0 +1,5 @@
+.github
+/src
+babel.config.json
+.eslint*
+/test/

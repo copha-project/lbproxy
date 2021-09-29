@@ -1,7 +1,14 @@
+const path = require('path')
+const fs = require('fs')
 const socks = require('./socks5')
-const debug = require('debug')('lbproxy')
+const {debug} = require('./common')
+const Core = require('./core')
+const Utils = require('uni-utils')
 
-exports.createServer = function(){
+function createServer(options){
+    const host = options.host || '127.0.0.1'
+    const port = options.port || 1080
+
     function initServer(server){
         server.on('proxyConnect', (info, destination) => {
             console.log('connected to remote server at %s:%d', info.address, info.port);
@@ -40,10 +47,76 @@ exports.createServer = function(){
           });
     }
     const server = socks.createServer()
-    initServer(server)
-    server.listen(1080)
-    console.log(`lbproxy server run port at :`,server.address().port)
-    debug(`lbproxy server run at :`,server.address())
+    // initServer(server)
+    server.on('error', (e) => {
+      if (e.code === 'EADDRINUSE') {
+        console.error('Address in use')
+      }else{
+        console.log(e.message)
+      }
+    })
+ 
+    server.listen(port,host,()=>{
+      console.log(`lbproxy server run port at : ${server.address().address}:${server.address().port}`)
+    })
+}
+
+exports.commandResolver = async (options) => {
+  debug(options)
+  const core = new Core()
+
+  if(options.stop){
+    const pid = core.config.get('pid')
+    return process.kill(pid)
+  }
+
+  if(options.add){
+    return core.addProxy(options.add)
+  }
+
+  if(options.remove){
+    return core.delProxy(options.remove)
+  }
+
+  if(options.removeAll){
+    return core.delProxys()
+  }
+
+  if(options.list){
+    const list = core.listProxy()
+    if(list.length){
+      console.log('Proxy List:')
+      console.table(
+        list.map(item => ({
+            Type: item.type,
+            Host: item.host,
+            Port: item.port
+        }))
+      )
+    }else{
+      console.log('no proxy add')
+    }
+    return
+  }
+
+  // start service
+  if(!Object.keys(options).length || options.host || options.port || options.daemon){
+    if(options.daemon){
+      const Entry = "dev"
+      try {
+        const p = await Utils.createProcess(
+            path.resolve(__dirname,`../bin/${Entry}.js`),
+            ['--host',options.host,'--port',options.port]
+          )
+        core.config.set('pid', p.pid)
+        console.log(`server pid on : ${p.pid}`)
+      } catch (err) {
+        console.log(`Error: ${err.message || err.msg}`)
+      }
+      return
+    }
+    return createServer(options)
+  }
 }
 
 exports.Lbserver = socks
