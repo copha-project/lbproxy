@@ -14,7 +14,7 @@ const net = require('net')
 const {SocksClient} = require('socks')
 const {debug} = require('./common')
 const { getProxy } = require('./core')
-const Utils = require('uni-utils/dev')
+const Utils = require('uni-utils')
 
 	// module specific events
 const
@@ -45,7 +45,8 @@ class SocksServer {
 		this.activeSessions = []
 		this.options = options || {}
 		this.server = net.createServer((socket) => {
-			socket.id = Utils.uuid()
+			this.#setSocketProps(socket)
+
 			debug(`new client ${socket.id} connet: ${socket.remoteAddress}:${socket.remotePort}`)
 
 			socket.on('error', (err) => {
@@ -243,43 +244,56 @@ class SocksServer {
 								},
 								connectionFilterDomain.intercept(() => {
 									const socksClientOptions = self.buildSocksOptions(args.dst.addr,args.dst.port)
-									SocksClient.createConnection(socksClientOptions,(err, info) => {
-										debug(`req use proxy: ${socksClientOptions.proxy.host}:${socksClientOptions.proxy.port} dst: ${args.dst.addr}:${args.dst.port} ${err?err:'no err'}`)
-										if (!err) {
-											let destination = info.socket
+									const socksClient = new SocksClient(socksClientOptions)
 									
-											let responseBuffer = Buffer.alloc(args.requestBuffer.length);
-											args.requestBuffer.copy(responseBuffer);
-											responseBuffer[1] = RFC_1928_REPLIES.SUCCEEDED;
-									
-											// write acknowledgement to client...
-											socket.write(responseBuffer, () => {
-												// listen for data bi-directionally
-												destination.pipe(socket)
-												socket.pipe(destination)
-											})
+									socksClient.once('established', (info) => {
+										debug(`connect to proxy established: ${socksClientOptions.proxy.host}:${socksClientOptions.proxy.port} dst: ${args.dst.addr}:${args.dst.port}`)
+										
+										info.socket.on('timeout', () => {
+											console.log('socket timeout');
+											info.socket.end()
+										})
+
+										console.log('connect remote');
+
+										let responseBuffer = Buffer.alloc(args.requestBuffer.length);
+										args.requestBuffer.copy(responseBuffer);
+										responseBuffer[1] = RFC_1928_REPLIES.SUCCEEDED;
+										// write acknowledgement to client...
+										socket.write(responseBuffer, () => {
+											// listen for data bi-directionally
+											info.socket.pipe(socket)
+											socket.pipe(info.socket)
+										})
+										connectionFilterDomain.exit()
+
+										info.socket.on('error',err=>{
+											console.log('connect remote',err)
 											connectionFilterDomain.exit()
-											
-										} else {
-											connectionFilterDomain.exit()
-											// notify of connection error
-											err.addr = args.dst.addr;
-											err.atyp = args.atyp;
-											err.port = args.dst.port;
-								
-											self.server.emit(EVENTS.PROXY_ERROR, err);
-								
-											if (err.code && err.code === 'EADDRNOTAVAIL') {
-												return end(RFC_1928_REPLIES.HOST_UNREACHABLE, args);
-											}
-								
-											if (err.code && err.code === 'ECONNREFUSED') {
-												return end(RFC_1928_REPLIES.CONNECTION_REFUSED, args);
-											}
-								
-											return end(RFC_1928_REPLIES.NETWORK_UNREACHABLE, args);
-										}
+										})
 									})
+
+									socksClient.on('error', (err) => {
+										debug(`connect to proxy err:`,err)
+										connectionFilterDomain.exit()
+										// notify of connection error
+										err.addr = args.dst.addr;
+										err.atyp = args.atyp;
+										err.port = args.dst.port;
+							
+										self.server.emit(EVENTS.PROXY_ERROR, err)
+							
+										if (err.code && err.code === 'EADDRNOTAVAIL') {
+											return end(RFC_1928_REPLIES.HOST_UNREACHABLE, args);
+										}
+							
+										if (err.code && err.code === 'ECONNREFUSED') {
+											return end(RFC_1928_REPLIES.CONNECTION_REFUSED, args);
+										}
+							
+										return end(RFC_1928_REPLIES.NETWORK_UNREACHABLE, args);
+									})
+									socksClient.connect()
 								}))
 						} else {
 							// bind and udp associate commands
@@ -386,11 +400,12 @@ class SocksServer {
 			}
 
 			// capture the client handshake
-			socket.once('data', handshake);
+			socket.once('data', handshake)
 
 			// capture socket closure
 			socket.once('end', () => {
-				debug(`client ${socket.id} disconnet\n`)
+				debug(`client ${socket.id} disconnet`)
+				debug.enabled && console.log('')
 				// remove the session from currently the active sessions list
 				self.activeSessions.splice(self.activeSessions.indexOf(socket), 1);
 			});
@@ -412,6 +427,18 @@ class SocksServer {
 
 	selectProxy(){
 		return getProxy()
+	}
+
+	#setSocketProps(socket){
+		socket._id = Utils.uuid()	
+		Object.defineProperties(socket,{
+			'id':{
+				get: function(){
+						return this._id.slice(-12)
+					}
+				}
+			}
+		)
 	}
 }
 
