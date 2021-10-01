@@ -13,20 +13,20 @@ class Core {
     }
 
     getProxy(){
-        const proxys = this.listProxy()
-        if(proxys.length==0){
+        const proxies = this.listProxy()
+        if(proxies.length==0){
             throw Error('proxy pool not has proxy.')
         }
         // todo 添加获取代理的策略
-        return proxys[0]
+        return proxies[0]
     }
 
     listProxy(){
-        return this.config.proxys
+        return this.config.proxies
     }
 
     findProxy(proxy){
-        return this.config.proxys.findIndex(e=>{
+        return this.config.proxies.findIndex(e=>{
             return e.host === proxy.host && e.port === parseInt(proxy.port)
         })
     }
@@ -49,8 +49,8 @@ class Core {
         return this.config.delProxy(proxy)
     }
 
-    delProxys(){
-        return this.config.delProxys()
+    delProxies(){
+        return this.config.delProxies()
     }
 }
 

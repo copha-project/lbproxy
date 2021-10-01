@@ -79,7 +79,7 @@ exports.commandResolver = async (options) => {
   }
 
   if(options.removeAll){
-    return core.delProxys()
+    return core.delProxies()
   }
 
   if(options.list){

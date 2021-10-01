@@ -15,7 +15,7 @@ const DefaultConfig = {
     pid: 0
 }
 
-const CONFIG_PROXY = "proxy"
+const CONFIG_PROXY = "proxies"
 
 class Config{
     #configPath = path.join(configDirectory,'config.json')
@@ -72,23 +72,23 @@ class Config{
 		this.all = config
 	}
 
-    get proxys(){
-        return this.get(CONFIG_PROXY)
+    get proxies(){
+        return this.get(CONFIG_PROXY) || []
     }
 
     addProxy(proxy){
-		const proxys = Array.isArray(this.proxys) ? this.proxys : []
-		proxys.push(proxy)
-        this.set(CONFIG_PROXY,proxys)
+		const proxies = this.proxies
+		proxies.push(proxy)
+        this.set(CONFIG_PROXY,proxies)
     }
 
     delProxy(proxy){
-        this.set(CONFIG_PROXY,this.proxys.filter(e=>
+        this.set(CONFIG_PROXY,this.proxies.filter(e=>
 			!(e.host === proxy.host && e.port === proxy.port)
 		))
     }
-	
-	delProxys(){
+
+	delProxies(){
 		this.set(CONFIG_PROXY,[])
 	}
 }
