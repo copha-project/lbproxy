@@ -2,6 +2,7 @@ const pkg = require('../package')
 const {debug} = require('./common')
 const commander = require('commander')
 const { commandResolver } = require('./index')
+const balancer = require('./balancer')
 
 function createCommander(program) {
     program.configureHelp({
@@ -16,6 +17,7 @@ function createCommander(program) {
         .option('-H --host <host>',"declare server bind address","127.0.0.1")
         .option('-p --port <port>',"declare server bind port", 1080)
         .option('-D --daemon', "run at daemon mode")
+        .addOption(new commander.Option('-m --method <name>', 'select a load balance method').choices(balancer.methodNameList))
         .option('-a --add <proxy>',"add a new proxy config")
         .option('-d --remove <proxy>',"remove a existed proxy config")
         .option('-s --stop',"stop proxy server")
