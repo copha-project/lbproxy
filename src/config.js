@@ -10,12 +10,13 @@ const configDirectory = path.join(Utils.homedir(),'.config/lbproxy')
 const mkdirOptions = {mode: 0o0700, recursive: true}
 const writeFileOptions = {mode: 0o0600}
 
-const DefaultConfig = {
-    proxy: [],
-    pid: 0
-}
+const CONFIG_PROXY = "proxies"
+const CONFIG_PID = 'pid'
 
-const CONFIG_PROXY = "proxy"
+const DefaultConfig = {
+    [CONFIG_PROXY]: [],
+	[CONFIG_PID]: 0
+}
 
 class Config{
     #configPath = path.join(configDirectory,'config.json')
@@ -72,23 +73,23 @@ class Config{
 		this.all = config
 	}
 
-    get proxys(){
-        return this.get(CONFIG_PROXY)
+    get proxies(){
+        return this.get(CONFIG_PROXY) || []
     }
 
     addProxy(proxy){
-		const proxys = Array.isArray(this.proxys) ? this.proxys : []
-		proxys.push(proxy)
-        this.set(CONFIG_PROXY,proxys)
+		const proxies = this.proxies
+		proxies.push(proxy)
+        this.set(CONFIG_PROXY,proxies)
     }
 
     delProxy(proxy){
-        this.set(CONFIG_PROXY,this.proxys.filter(e=>
+        this.set(CONFIG_PROXY,this.proxies.filter(e=>
 			!(e.host === proxy.host && e.port === proxy.port)
 		))
     }
-	
-	delProxys(){
+
+	delProxies(){
 		this.set(CONFIG_PROXY,[])
 	}
 }

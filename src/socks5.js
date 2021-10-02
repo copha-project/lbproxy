@@ -13,8 +13,8 @@ const domain = require('domain')
 const net = require('net')
 const {SocksClient} = require('socks')
 const {debug} = require('./common')
-const { getProxy } = require('./core')
-const Utils = require('uni-utils/dev')
+const Utils = require('uni-utils')
+const Balancer = require('./balancer')
 
 	// module specific events
 const
@@ -45,7 +45,8 @@ class SocksServer {
 		this.activeSessions = []
 		this.options = options || {}
 		this.server = net.createServer((socket) => {
-			socket.id = Utils.uuid()
+			this.#setSocketProps(socket)
+
 			debug(`new client ${socket.id} connet: ${socket.remoteAddress}:${socket.remotePort}`)
 
 			socket.on('error', (err) => {
@@ -243,31 +244,44 @@ class SocksServer {
 								},
 								connectionFilterDomain.intercept(() => {
 									const socksClientOptions = self.buildSocksOptions(args.dst.addr,args.dst.port)
-									SocksClient.createConnection(socksClientOptions,(err, info) => {
-										debug(`req use proxy: ${socksClientOptions.proxy.host}:${socksClientOptions.proxy.port} dst: ${args.dst.addr}:${args.dst.port} ${err?err:'no err'}`)
+									SocksClient.createConnection(socksClientOptions, (err, info) => {
+										debug(`select proxy :[${socksClientOptions.proxy.host}:${socksClientOptions.proxy.port}]`)
 										if (!err) {
-											let destination = info.socket
-									
+											debug(`connect to proxy established: dst: ${args.dst.addr}:${args.dst.port}`)
+											
+											info.socket.on('error',err=>{
+												debug('req remote error: ',err.message)
+												return end(RFC_1928_REPLIES.NETWORK_UNREACHABLE, args);
+											})
+
+											socket.once('data',(e)=>{
+												debug(`proxy to remote connect`)
+											})
+
+											socket.once('close',()=>{
+												// debug(`proxy to remote close`)
+											})
+											
 											let responseBuffer = Buffer.alloc(args.requestBuffer.length);
 											args.requestBuffer.copy(responseBuffer);
 											responseBuffer[1] = RFC_1928_REPLIES.SUCCEEDED;
-									
 											// write acknowledgement to client...
 											socket.write(responseBuffer, () => {
 												// listen for data bi-directionally
-												destination.pipe(socket)
-												socket.pipe(destination)
+												info.socket.pipe(socket)
+												socket.pipe(info.socket)
 											})
 											connectionFilterDomain.exit()
 											
 										} else {
+											debug(`connect to proxy err: ${err.message}`)
 											connectionFilterDomain.exit()
 											// notify of connection error
 											err.addr = args.dst.addr;
 											err.atyp = args.atyp;
 											err.port = args.dst.port;
 								
-											self.server.emit(EVENTS.PROXY_ERROR, err);
+											self.server.emit(EVENTS.PROXY_ERROR, err)
 								
 											if (err.code && err.code === 'EADDRNOTAVAIL') {
 												return end(RFC_1928_REPLIES.HOST_UNREACHABLE, args);
@@ -386,38 +400,74 @@ class SocksServer {
 			}
 
 			// capture the client handshake
-			socket.once('data', handshake);
+			socket.once('data', handshake)
 
 			// capture socket closure
 			socket.once('end', () => {
-				debug(`client ${socket.id} disconnet\n`)
+				debug(`client ${socket.id} disconnet`)
+				debug.enabled && console.log('')
 				// remove the session from currently the active sessions list
 				self.activeSessions.splice(self.activeSessions.indexOf(socket), 1);
 			});
 		});
 	}
+	
+	get address(){
+		return this.server.address().address
+	}
+	
+	get port(){
+		return this.server.address().port
+	}
+
+	on(...args){
+		return this.server.on(...args)
+	}
+
+	start(cb){
+		return this.server.listen(this.options.port,this.options.host,cb)
+	}
 
 	buildSocksOptions(addr,port){
 		return {
-			proxy: this.selectProxy(),
+			proxy: this.getProxy(),
 			command: 'connect', // SOCKS command (createConnection factory function only supports the connect command)
 		
 			destination: {
 				host: addr, // github.com (hostname lookups are supported with SOCKS v4a and 5)
 				port: port
 			},
-			timeout: 3000
+			timeout: 30000
 		}
 	}
 
-	selectProxy(){
-		return getProxy()
+	getProxy(){
+		const options = {
+			host: '', // ipv4, ipv6, or hostname
+    		port: 1080,
+    		type: 5,
+    		userId: '', 
+    		password: ''
+		}
+		return Object.assign(options,Balancer.getProxy())
+	}
+
+	#setSocketProps(socket){
+		socket._id = Utils.uuid('v4')
+		Object.defineProperties(socket,{
+			'id':{
+				get: function(){
+						return this._id.slice(-12)
+					}
+				}
+			}
+		)
 	}
 }
 
 exports.createServer = (options) => {
-	let socksServer = new SocksServer(options);
-	return socksServer.server;
+	let socksServer = new SocksServer(options)
+	return socksServer
 };
-exports.events = EVENTS;
-exports.SocksServer = SocksServer;
+exports.events = EVENTS
+exports.SocksServer = SocksServer
