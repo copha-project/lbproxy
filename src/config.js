@@ -10,12 +10,13 @@ const configDirectory = path.join(Utils.homedir(),'.config/lbproxy')
 const mkdirOptions = {mode: 0o0700, recursive: true}
 const writeFileOptions = {mode: 0o0600}
 
-const DefaultConfig = {
-    proxy: [],
-    pid: 0
-}
-
 const CONFIG_PROXY = "proxies"
+const CONFIG_PID = 'pid'
+
+const DefaultConfig = {
+    [CONFIG_PROXY]: [],
+	[CONFIG_PID]: 0
+}
 
 class Config{
     #configPath = path.join(configDirectory,'config.json')
