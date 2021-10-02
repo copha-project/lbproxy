@@ -25,7 +25,7 @@ const LB_METHODS = {
         name: "Least connections",
         active: false
     },
-    "LST": {
+    "LRT": {
         name: "The least response time",
         active: false
     }
@@ -37,7 +37,7 @@ class Balancer {
     static Methods = LB_METHODS
     static DefaultMethodName = DefaultMethodName
     static methodNameList = Object.keys(LB_METHODS)
-    
+
     constructor(){
         this.config = new Config()
         this.proxies = this.config.proxies
