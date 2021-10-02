@@ -1,7 +1,7 @@
 {
   "name": "@copha/lbproxy",
   "description": "a proxy server with load balance",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "yxwzaxns",
   "keywords": [
     "copha",
@@ -28,7 +28,7 @@
     "debug": "^4.3.2",
     "dot-prop": "^6.0.1",
     "socks": "^2.6.1",
-    "uni-utils": "^1.0.12",
+    "uni-utils": "^1.0.13",
     "write-file-atomic": "^3.0.3"
   },
   "devDependencies": {
