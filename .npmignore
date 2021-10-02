@@ -1,5 +1,7 @@
 .github
 /src
+/dev
 babel.config.json
 .eslint*
 /test/
+yarn-error.log
