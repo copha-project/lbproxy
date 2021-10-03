@@ -449,7 +449,9 @@ class SocksServer {
     		userId: '', 
     		password: ''
 		}
-		return Object.assign(options,Balancer.getProxy())
+		const proxy = Balancer.getProxy()
+		if(!proxy) throw Error('This proxy is invalid.')
+		return Object.assign(options,proxy)
 	}
 
 	#setSocketProps(socket){

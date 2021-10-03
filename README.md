@@ -21,7 +21,7 @@ lbproxy -a host:port
 
 - Start proxy service
 ```
-lbproxy -H 127.0.0.1 -p 1080 -D # run server with daemon mode
+lbproxy -H 127.0.0.1 -p 1080 -m R # use -D option can run server with daemon mode
 ```
 
 - Stop proxy service
@@ -30,6 +30,14 @@ lbproxy -s
 ```
 
 -  Use `lbproxy -h` for more helper
+
+## Load Balance Strategy
+default use random
+
+- [x] Random (R)
+- [x] Round Robin (RR)
+- [ ] Least connections (LC)
+- [ ] The least response time (LRT)
 
 ### Ref
 * [simple-socks](https://github.com/brozeph/simple-socks)

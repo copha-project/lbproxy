@@ -1,5 +1,7 @@
-const {debug} = require('./common')
 const Config = require('./config')
+const path = require('path')
+const { daemon } = require('./common')
+const Balancer = require('./balancer')
 
 const PROXY_ITEM = {
 	type: 5,
@@ -51,6 +53,13 @@ class Core {
 
     delProxies(){
         return this.config.delProxies()
+    }
+
+    async daemon(options){
+        const Entry = "index"
+        const execPath = path.resolve(__dirname,`../bin/${Entry}.js`)
+        const args = ['--host',options.host,'--port',options.port,'--method',options.method || Balancer.DefaultMethodName]
+        return daemon(execPath,args,{LBPROXY_DAEMON:1,DEBUG:'none'})
     }
 }
 
