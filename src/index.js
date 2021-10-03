@@ -1,18 +1,16 @@
-const path = require('path')
 const fs = require('fs')
 const socks = require('./socks5')
 const {debug} = require('./common')
 const Core = require('./core')
-const Utils = require('uni-utils')
 const Balancer = require('./balancer')
 
 function createServer(options){
     const server = socks.createServer(options)
     Balancer.getInstance().setMethod(options.method)
-    // initServer(server)
     server.on('error', (e) => {
       if (e.code === 'EADDRINUSE') {
         console.error('Address in use')
+        process.exit(100)
       }else{
         console.log(e.message)
       }
@@ -69,19 +67,17 @@ exports.commandResolver = async (options) => {
 
   // start service
   if(!Object.keys(options).length || options.host || options.port || options.daemon){
+    if(core.listProxy().length === 0){
+      throw Error('No proxy available, need to add it before run service.')
+    }
     if(options.daemon){
-      const Entry = "dev"
       try {
-        const p = await Utils.createProcess(
-            path.resolve(__dirname,`../bin/${Entry}.js`),
-            ['--host',options.host,'--port',options.port,'--method',options.method || Balancer.DefaultMethodName]
-          )
+        const p = await core.daemon(options)
         core.config.set('pid', p.pid)
         console.log(`server pid on : ${p.pid}`)
-        //todo: createProcess should unref parent process
         process.exit(0)
       } catch (err) {
-        console.log(`Error: ${err.message || err.msg}`)
+        console.log(`Daemon Error(${err.code}): ${err.message || err.msg || err}`)
       }
       return
     }
