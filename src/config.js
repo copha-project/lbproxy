@@ -1,6 +1,5 @@
 const {debug} = require('./common')
 const path = require('path')
-const os = require('os')
 const fs = require('fs')
 const Utils = require('uni-utils')
 const writeFileAtomic = require('write-file-atomic')

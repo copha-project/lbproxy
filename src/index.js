@@ -1,4 +1,3 @@
-const fs = require('fs')
 const socks = require('./socks5')
 const {debug} = require('./common')
 const Core = require('./core')
