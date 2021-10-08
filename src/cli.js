@@ -23,6 +23,7 @@ function createCommander(program) {
         .option('-s --stop',"stop proxy server")
         .option('--remove-all',"remove all proxy")
         .option('-l --list','list proxy config')
+        .option('-r --renew [time]','check and update the list of proxy')
 }
 
 async function main(){
