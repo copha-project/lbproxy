@@ -1,7 +1,8 @@
 const Config = require('./config')
 const path = require('path')
-const { daemon } = require('./common')
+const { daemon, debug } = require('./common')
 const Balancer = require('./balancer')
+const Proxy = require('./proxy')
 
 const PROXY_ITEM = {
 	type: 5,
@@ -12,6 +13,33 @@ const PROXY_ITEM = {
 class Core {
     constructor(){
         this.config = new Config()
+    }
+    
+    async renewProxy(){
+        const failedList = await this.connectTest('https://www.baidu.com')
+        console.log(failedList.map(e=>e.toString()))
+    }
+
+    async connectTest(testUrl){
+        const list = this.listProxy()
+        const func = async (list) => {
+            const failedList = []
+            for (const item of list) {
+                const proxy = new Proxy(item)
+                try {
+                    const resp = await proxy.connect(testUrl)
+                    if(parseInt(resp.statusCode) !== 200) failedList.push(proxy)
+                } catch (error) {
+                    failedList.push(proxy)
+                }
+            }
+            return failedList
+        }
+        let failedList = []
+        for (let index = 0; index < 3; index++) {
+            failedList = await func(index ? failedList : list) 
+        }
+        return failedList
     }
 
     getProxy(){

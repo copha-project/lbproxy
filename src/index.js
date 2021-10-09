@@ -46,6 +46,11 @@ exports.commandResolver = async (options) => {
   if(options.removeAll){
     return core.delProxies()
   }
+  
+  if(options.renew && !Number.isInteger(parseInt(options.renew))){
+    debug('start renew')
+    return core.renewProxy()
+  }
 
   if(options.list){
     const list = core.listProxy()
