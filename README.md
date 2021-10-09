@@ -19,9 +19,14 @@ npm i -g @copha/lbproxy
 lbproxy -a host:port
 ```
 
+- Renew proxy pools
+```
+lbproxy -r [test_url]
+```
+
 - Start proxy service
 ```
-lbproxy -H 127.0.0.1 -p 1080 -m R # use -D option can run server with daemon mode
+lbproxy -H 127.0.0.1 -p 1080 -r 5 -m R # use -D option can run server with daemon mode
 ```
 
 - Stop proxy service
