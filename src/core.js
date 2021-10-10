@@ -4,17 +4,16 @@ const { daemon, debug } = require('./common')
 const Balancer = require('./balancer')
 const Proxy = require('./proxy')
 
-const PROXY_ITEM = {
-	type: 5,
-	host: '',
-	port: 1080
-  }
-
 class Core {
+    static config = new Config()
+	
     constructor(){
-        this.config = new Config()
     }
-    
+	
+    get config(){
+	return Core.config
+    }
+	
     async renewProxy(){
         const failedList = await this.connectTest('https://www.baidu.com')
         console.log(failedList.map(e=>e.toString()))
@@ -64,7 +63,7 @@ class Core {
     addProxy(data){
         const [host,port] = data.split(':')
         if(!host || !port) throw Error('format error')
-        const proxy = Object.assign({},PROXY_ITEM)
+	const proxy = new Proxy()
         proxy.host = host
         proxy.port = parseInt(port)
         if(this.findProxy(proxy) >= 0) return
@@ -73,7 +72,7 @@ class Core {
 
     delProxy(data){
         const [host,port] = data.split(':')
-        const proxy = Object.assign({},PROXY_ITEM)
+        const proxy = new Proxy()
         proxy.host = host
         proxy.port = parseInt(port)
         return this.config.delProxy(proxy)
