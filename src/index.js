@@ -60,7 +60,8 @@ exports.commandResolver = async (options) => {
         list.map(item => ({
             Type: item.type,
             Host: item.host,
-            Port: item.port
+            Port: item.port,
+            Active: item.active
         }))
       )
     }else{
@@ -74,6 +75,7 @@ exports.commandResolver = async (options) => {
     if(core.listProxy().length === 0){
       throw Error('No proxy available, need to add it before run service.')
     }
+
     if(options.daemon){
       try {
         const p = await core.daemon(options)
@@ -85,6 +87,13 @@ exports.commandResolver = async (options) => {
       }
       return
     }
+
+    // pre check proxy
+    if(options.method === "LRT"){
+      debug('LRT need pre renew')
+      await core.renewProxy()
+    }
+
     return createServer(options)
   }
 }

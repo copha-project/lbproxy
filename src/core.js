@@ -5,18 +5,18 @@ const Balancer = require('./balancer')
 const Proxy = require('./proxy')
 
 class Core {
-    static config = new Config()
+    static config = Config.getInstance()
 	
     constructor(){
     }
 	
     get config(){
-	return Core.config
+	    return Core.config
     }
 	
     async renewProxy(){
         const failedList = await this.connectTest('https://www.baidu.com')
-        console.log(failedList.map(e=>e.toString()))
+        failedList.map(e=>e.setDown())
     }
 
     async connectTest(testUrl){
@@ -35,7 +35,8 @@ class Core {
             return failedList
         }
         let failedList = []
-        for (let index = 0; index < 3; index++) {
+        for (let index = 0; index < 2; index++) {
+            debug(`start loop ${index+1} connect test...`)
             failedList = await func(index ? failedList : list) 
         }
         return failedList
@@ -63,11 +64,11 @@ class Core {
     addProxy(data){
         const [host,port] = data.split(':')
         if(!host || !port) throw Error('format error')
-	const proxy = new Proxy()
+	    const proxy = new Proxy()
         proxy.host = host
         proxy.port = parseInt(port)
         if(this.findProxy(proxy) >= 0) return
-        return this.config.addProxy(proxy)
+        return this.config.addProxy(proxy.toJson())
     }
 
     delProxy(data){
@@ -75,7 +76,7 @@ class Core {
         const proxy = new Proxy()
         proxy.host = host
         proxy.port = parseInt(port)
-        return this.config.delProxy(proxy)
+        return this.config.delProxy(proxy.toJson())
     }
 
     delProxies(){
