@@ -17,14 +17,24 @@ const DefaultConfig = {
 	[CONFIG_PID]: 0
 }
 
-class Config{
+class Config {
+	static #instance = null
     #configPath = path.join(configDirectory,'config.json')
-    constructor(){
-        this.all = {
-            ...DefaultConfig,
-            ...this.all
-        }
+    constructor(){}
+	
+	static getInstance(){
+        if(!this.#instance){
+            this.#instance = new this
+			this.#instance.all = {
+				...DefaultConfig,
+				...this.#instance.all
+			}
+        }else{
+			debug('reuse config')
+		}
+        return this.#instance
     }
+
     get all(){
         try {
 			return Utils.readJsonSync(this.#configPath)
@@ -90,6 +100,11 @@ class Config{
 
 	delProxies(){
 		this.set(CONFIG_PROXY,[])
+	}
+
+	updateProxy(proxy){
+		this.delProxy(proxy)
+		this.addProxy(proxy)
 	}
 }
 
