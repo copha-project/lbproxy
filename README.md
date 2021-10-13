@@ -42,7 +42,7 @@ default use random
 - [x] Random (R)
 - [x] Round Robin (RR)
 - [ ] Least connections (LC)
-- [ ] The least response time (LRT)
+- [x] The least response time (LRT)
 
 ### Ref
 * [simple-socks](https://github.com/brozeph/simple-socks)

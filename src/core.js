@@ -1,17 +1,40 @@
 const Config = require('./config')
 const path = require('path')
-const { daemon } = require('./common')
+const { daemon, debug } = require('./common')
 const Balancer = require('./balancer')
-
-const PROXY_ITEM = {
-	type: 5,
-	host: '',
-	port: 1080
-  }
+const Proxy = require('./proxy')
 
 class Core {
+    static config = Config.getInstance()
+	
     constructor(){
-        this.config = new Config()
+    }
+	
+    get config(){
+	    return Core.config
+    }
+	
+    async renewProxy(url){
+        return this.connectUrlTest(url)
+    }
+
+    async connectUrlTest(testUrl){
+        const list = this.listProxy()
+
+        for (const item of list) {
+            const proxy = new Proxy(item)
+            try {
+                const resp = await proxy.connect(testUrl || this.config.connectTestUrl)
+                if(parseInt(resp.statusCode) !== 200){
+                    proxy.setDown()
+                }else{
+                    proxy.setUp()
+                }
+            } catch (error) {
+                console.log(error.message);
+                proxy.setDown()
+            }
+        }
     }
 
     getProxy(){
@@ -36,19 +59,19 @@ class Core {
     addProxy(data){
         const [host,port] = data.split(':')
         if(!host || !port) throw Error('format error')
-        const proxy = Object.assign({},PROXY_ITEM)
+	    const proxy = new Proxy()
         proxy.host = host
         proxy.port = parseInt(port)
         if(this.findProxy(proxy) >= 0) return
-        return this.config.addProxy(proxy)
+        return this.config.addProxy(proxy.toJson())
     }
 
     delProxy(data){
         const [host,port] = data.split(':')
-        const proxy = Object.assign({},PROXY_ITEM)
+        const proxy = new Proxy()
         proxy.host = host
         proxy.port = parseInt(port)
-        return this.config.delProxy(proxy)
+        return this.config.delProxy(proxy.toJson())
     }
 
     delProxies(){

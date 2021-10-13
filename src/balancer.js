@@ -27,7 +27,19 @@ const LB_METHODS = {
     },
     "LRT": {
         name: "The least response time",
-        active: false
+        active: true,
+        func: (list) => {
+            let minRt = 100
+            let index = -1
+            for (const i in list) {
+                if(list[i].active && list[i].rt > 0 && list[i].rt < minRt){
+                    minRt = list[i].rt
+                    index = i
+                }
+            }
+            return index
+            // return list.sort((a,b)=>a.rt-b.rt).filter(e=>e.rt>0)[0]
+        }
     }
 }
 
@@ -39,7 +51,7 @@ class Balancer {
     static methodNameList = Object.keys(LB_METHODS)
 
     constructor(){
-        this.config = new Config()
+        this.config = Config.getInstance()
         this.proxies = this.config.proxies
         this.currentProxyIndex = 0
     }
@@ -63,8 +75,11 @@ class Balancer {
 
     getProxy(){
         let index = this.useMethod.func(this.proxies,this.currentProxyIndex)
+        if(index == -1) {
+            throw Error('No suitable proxy was found to use!')
+        }
         this.currentProxyIndex = index
-        return this.proxies[index]    
+        return this.proxies[index] 
     }
 }
 

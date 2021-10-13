@@ -18,11 +18,12 @@ function createCommander(program) {
         .option('-p --port <port>',"declare server bind port", 1080)
         .option('-D --daemon', "run at daemon mode")
         .addOption(new commander.Option('-m --method <name>', 'select a load balance method').choices(balancer.methodNameList))
-        .option('-a --add <proxy>',"add a new proxy config")
-        .option('-d --remove <proxy>',"remove a existed proxy config")
+        .option('-a --add <proxy>',"add a new proxy to pool")
+        .option('-d --remove <proxy>',"remove a existed proxy from pool")
         .option('-s --stop',"stop proxy server")
-        .option('--remove-all',"remove all proxy")
+        .option('--remove-all',"remove all proxy from pool")
         .option('-l --list','list proxy config')
+        .option('-r --renew [time]','check and update the list of proxy')
 }
 
 async function main(){
