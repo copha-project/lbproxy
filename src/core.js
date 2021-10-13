@@ -14,32 +14,27 @@ class Core {
 	    return Core.config
     }
 	
-    async renewProxy(){
-        const failedList = await this.connectTest('https://www.baidu.com')
-        failedList.map(e=>e.setDown())
+    async renewProxy(url){
+        return this.connectUrlTest(url)
     }
 
-    async connectTest(testUrl){
+    async connectUrlTest(testUrl){
         const list = this.listProxy()
-        const func = async (list) => {
-            const failedList = []
-            for (const item of list) {
-                const proxy = new Proxy(item)
-                try {
-                    const resp = await proxy.connect(testUrl)
-                    if(parseInt(resp.statusCode) !== 200) failedList.push(proxy)
-                } catch (error) {
-                    failedList.push(proxy)
+
+        for (const item of list) {
+            const proxy = new Proxy(item)
+            try {
+                const resp = await proxy.connect(testUrl || this.config.connectTestUrl)
+                if(parseInt(resp.statusCode) !== 200){
+                    proxy.setDown()
+                }else{
+                    proxy.setUp()
                 }
+            } catch (error) {
+                console.log(error.message);
+                proxy.setDown()
             }
-            return failedList
         }
-        let failedList = []
-        for (let index = 0; index < 2; index++) {
-            debug(`start loop ${index+1} connect test...`)
-            failedList = await func(index ? failedList : list) 
-        }
-        return failedList
     }
 
     getProxy(){

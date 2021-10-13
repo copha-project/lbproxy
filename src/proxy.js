@@ -9,6 +9,7 @@ class Proxy {
     host = ""
     port = 1080
     active = true
+    weight = 0
     rt = -1
 
     constructor(obj){
@@ -20,7 +21,7 @@ class Proxy {
     async connect(endpoint){
         return new Promise((resolve,reject)=>{
             const proxy = `socks://${this.host}:${this.port}`
-            // debug('attempting to GET %j', endpoint)
+            debug(`attempting to GET ${endpoint} use ${this.toString()}`)
             const opts = url.parse(endpoint)
             opts.timeout = 5000
             opts.agent = new SocksProxyAgent(proxy)
@@ -33,19 +34,17 @@ class Proxy {
     }
 
     setDown(){
-        if(!this.active) return
         this.active = false
         this.config.updateProxy(this.toJson())
     }
 
     setUp(){
-        if(this.active) return
         this.active = true
         this.config.updateProxy(this.toJson())
     }
 
     toString(){
-        return `socks${this.type}@${this.host}:${this.port} ${this.active}`
+        return `socks${this.type}@${this.host}:${this.port}`
     }
 
     toJson() {
@@ -54,6 +53,7 @@ class Proxy {
             host: this.host,
             port: this.port,
             active: this.active,
+            weight: this.weight,
             rt: this.rt
         }
     }    
