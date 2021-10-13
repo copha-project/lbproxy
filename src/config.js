@@ -10,11 +10,13 @@ const mkdirOptions = {mode: 0o0700, recursive: true}
 const writeFileOptions = {mode: 0o0600}
 
 const CONFIG_PROXY = "proxies"
+const CONFIG_CONNECT_TEST_URL = "CONNECT_TEST_URL"
 const CONFIG_PID = 'pid'
 
 const DefaultConfig = {
     [CONFIG_PROXY]: [],
-	[CONFIG_PID]: 0
+	[CONFIG_PID]: 0,
+	[CONFIG_CONNECT_TEST_URL]: "https://github.com"
 }
 
 class Config {
@@ -24,6 +26,7 @@ class Config {
 	
 	static getInstance(){
         if(!this.#instance){
+			debug('new config instance')
             this.#instance = new this
 			this.#instance.all = {
 				...DefaultConfig,
@@ -57,6 +60,7 @@ class Config {
 			throw error
 		}
     }
+
     set all(value){
         try {
 			// Make sure the folder exists as it could have been deleted in the meantime
@@ -85,6 +89,10 @@ class Config {
     get proxies(){
         return this.get(CONFIG_PROXY) || []
     }
+
+	get connectTestUrl(){
+		return this.get(CONFIG_CONNECT_TEST_URL)
+	}
 
     addProxy(proxy){
 		const proxies = this.proxies
