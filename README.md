@@ -21,7 +21,7 @@ lbproxy -a host:port
 
 - Renew proxy pools
 ```
-lbproxy -r [test_url]
+lbproxy -r
 ```
 
 - Start proxy service
