@@ -29,7 +29,16 @@ const LB_METHODS = {
         name: "The least response time",
         active: true,
         func: (list) => {
-            return list.sort((a,b)=>a.rt-b.rt).filter(e=>e.rt>0)[0]
+            let minRt = 100
+            let index = -1
+            for (const i in list) {
+                if(list[i].active && list[i].rt > 0 && list[i].rt < minRt){
+                    minRt = list[i].rt
+                    index = i
+                }
+            }
+            return index
+            // return list.sort((a,b)=>a.rt-b.rt).filter(e=>e.rt>0)[0]
         }
     }
 }
@@ -66,11 +75,11 @@ class Balancer {
 
     getProxy(){
         let index = this.useMethod.func(this.proxies,this.currentProxyIndex)
-        if(!index) {
+        if(index == -1) {
             throw Error('No suitable proxy was found to use!')
         }
         this.currentProxyIndex = index
-        return this.proxies[index]    
+        return this.proxies[index] 
     }
 }
 
