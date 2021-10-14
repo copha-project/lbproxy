@@ -32,7 +32,7 @@ const LB_METHODS = {
             let minRt = 100
             let index = -1
             for (const i in list) {
-                if(list[i].active && list[i].rt > 0 && list[i].rt < minRt){
+                if(list[i].rt > 0 && list[i].rt < minRt){
                     minRt = list[i].rt
                     index = i
                 }
@@ -74,12 +74,13 @@ class Balancer {
     }
 
     getProxy(){
-        let index = this.useMethod.func(this.proxies,this.currentProxyIndex)
+        const activeList = this.proxies.filter(e=>e.active)
+        let index = this.useMethod.func(activeList,this.currentProxyIndex)
         if(index == -1) {
             throw Error('No suitable proxy was found to use!')
         }
         this.currentProxyIndex = index
-        return this.proxies[index] 
+        return activeList[index] 
     }
 }
 
