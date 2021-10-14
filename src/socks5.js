@@ -15,6 +15,7 @@ const {SocksClient} = require('socks')
 const {debug} = require('./common')
 const Utils = require('uni-utils')
 const Balancer = require('./balancer')
+const Config = require('./config')
 
 	// module specific events
 const
@@ -42,6 +43,7 @@ class SocksServer {
 	constructor (options) {
 		let self = this
 
+		this.config = Config.getInstance()
 		this.activeSessions = []
 		this.options = options || {}
 		this.server = net.createServer((socket) => {
@@ -437,7 +439,7 @@ class SocksServer {
 				host: addr, // github.com (hostname lookups are supported with SOCKS v4a and 5)
 				port: port
 			},
-			timeout: 30000
+			timeout: this.config.reqTimeOut
 		}
 	}
 
