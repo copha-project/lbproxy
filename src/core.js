@@ -1,6 +1,7 @@
 const Config = require('./config')
 const path = require('path')
 const { daemon, debug } = require('./common')
+const Utils = require('uni-utils')
 const Balancer = require('./balancer')
 const Proxy = require('./proxy')
 
@@ -15,6 +16,8 @@ class Core {
     }
 	
     async renewProxy(url){
+        if( this.config.renewLastTime > 0  && (this.config.renewGap + this.config.renewLastTime > Utils.getTimeStamp())) return
+        this.config.renewLastTime = Utils.getTimeStamp()
         return this.connectUrlTest(url)
     }
 
