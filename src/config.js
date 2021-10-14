@@ -11,12 +11,18 @@ const writeFileOptions = {mode: 0o0600}
 
 const CONFIG_PROXY = "proxies"
 const CONFIG_CONNECT_TEST_URL = "CONNECT_TEST_URL"
+const RENEW_LAST_TEST_DATE = "RENEW_LAST_TEST_DATE"
+const RENEW_TIME_GAP = "RENEW_TIME_GAP"
 const CONFIG_PID = 'pid'
+const CONFIG_REQ_TIMEOUT = 'REQ_TIMEOUT'
 
 const DefaultConfig = {
     [CONFIG_PROXY]: [],
 	[CONFIG_PID]: 0,
-	[CONFIG_CONNECT_TEST_URL]: "https://github.com"
+	[CONFIG_CONNECT_TEST_URL]: "https://github.com",
+	[RENEW_LAST_TEST_DATE]: 0,
+	[RENEW_TIME_GAP]: 300,
+	[CONFIG_REQ_TIMEOUT]: 300000
 }
 
 class Config {
@@ -92,6 +98,22 @@ class Config {
 
 	get connectTestUrl(){
 		return this.get(CONFIG_CONNECT_TEST_URL)
+	}
+
+	get renewGap() {
+		return this.get(RENEW_TIME_GAP)
+	}
+
+	get renewLastTime(){
+		return this.get(RENEW_LAST_TEST_DATE)
+	}
+	
+	get reqTimeOut(){
+		return this.get(CONFIG_REQ_TIMEOUT)
+	}
+
+	set renewLastTime(v){
+		return this.set(RENEW_LAST_TEST_DATE,v)
 	}
 
     addProxy(proxy){
