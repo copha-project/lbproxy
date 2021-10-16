@@ -9,7 +9,8 @@
     "load balance",
     "proxy",
     "socks5",
-    "nodejs"
+    "nodejs",
+    "socks5 server"
   ],
   "homepage": "https://github.com/copha-project/lbproxy.git",
   "main": "index.js",
