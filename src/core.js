@@ -2,6 +2,7 @@ const Config = require('./config')
 const path = require('path')
 const { daemon, debug } = require('./common')
 const Utils = require('uni-utils')
+const socks = require('./socks5')
 const Balancer = require('./balancer')
 const Proxy = require('./proxy')
 
@@ -86,6 +87,23 @@ class Core {
         const execPath = path.resolve(__dirname,`../bin/${Entry}.js`)
         const args = ['--host',options.host,'--port',options.port,'--method',options.method || Balancer.DefaultMethodName]
         return daemon(execPath,args,{LBPROXY_DAEMON:1,DEBUG:'none'})
+    }
+
+    createServer(options){
+        const server = socks.createServer(options)
+        Balancer.getInstance().setMethod(options.method)
+        server.on('error', (e) => {
+          if (e.code === 'EADDRINUSE') {
+            console.error('Address in use')
+            process.exit(100)
+          }else{
+            console.log(e.message)
+          }
+        })
+     
+        server.start(()=>{
+          console.log(`lbproxy server run port at : ${server.address}:${server.port}`)
+        })
     }
 }
 

@@ -1,24 +1,5 @@
-const socks = require('./socks5')
 const {debug} = require('./common')
 const Core = require('./core')
-const Balancer = require('./balancer')
-
-function createServer(options){
-    const server = socks.createServer(options)
-    Balancer.getInstance().setMethod(options.method)
-    server.on('error', (e) => {
-      if (e.code === 'EADDRINUSE') {
-        console.error('Address in use')
-        process.exit(100)
-      }else{
-        console.log(e.message)
-      }
-    })
- 
-    server.start(()=>{
-      console.log(`lbproxy server run port at : ${server.address}:${server.port}`)
-    })
-}
 
 exports.commandResolver = async (options) => {
   debug(options)
@@ -94,6 +75,6 @@ exports.commandResolver = async (options) => {
       await core.renewProxy()
     }
 
-    return createServer(options)
+    return core.createServer(options)
   }
 }
