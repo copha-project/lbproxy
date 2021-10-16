@@ -7,11 +7,19 @@ const Balancer = require('./balancer')
 const Proxy = require('./proxy')
 
 class Core {
+    static #instance = null
     static config = Config.getInstance()
 	
     constructor(){
     }
 	
+    static getInstance(){
+        if(!this.#instance){
+            this.#instance = new this
+        }
+        return this.#instance
+    }
+    
     get config(){
 	    return Core.config
     }
