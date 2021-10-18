@@ -25,7 +25,6 @@ class Core {
     }
 	
     async renewProxy(url){
-        if( this.config.renewLastTime > 0  && (this.config.renewGap + this.config.renewLastTime > Utils.getTimeStamp())) return
         this.config.renewLastTime = Utils.getTimeStamp()
         return this.connectUrlTest(url)
     }
@@ -43,7 +42,7 @@ class Core {
                     proxy.setUp()
                 }
             } catch (error) {
-                console.log(error.message);
+                debug(error.message)
                 proxy.setDown()
             }
         }
@@ -115,8 +114,4 @@ class Core {
     }
 }
 
-module.exports = Core
-module.exports.getProxy = ()=>{
-    const core = new Core()
-    return core.getProxy()
-}
+exports.getInstance = () => Core.getInstance()
