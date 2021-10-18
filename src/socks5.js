@@ -451,7 +451,7 @@ class SocksServer {
     		userId: '', 
     		password: ''
 		}
-		const proxy = Balancer.getProxy()
+		const proxy = Balancer.getInstance().getProxy()
 		return Object.assign(options,proxy)
 	}
 
