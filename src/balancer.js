@@ -1,6 +1,6 @@
 const Config = require('./config')
-const {debug, loopFunc} = require('./common');
-const Core = require('./core');
+const {debug, loopFunc} = require('./common')
+const Core = require('./core')
 
 const LB_METHODS = {
     "R": {
@@ -72,10 +72,11 @@ class Balancer {
         this.useMethod = LB_METHODS[name]
         if(!this.useMethod.active) throw Error('This method is currently unavailable.')
         debug(`lb method use [${this.useMethod.name}]`)
-        if(this.useMethod === 'LRT'){
-            debug(`renew proxy every ${this.config.renewGap} mins`)       
+        if(name === 'LRT'){
+            debug(`renew proxy every ${this.config.renewGap} seconds`)       
             loopFunc(()=>{
                 Core.getInstance().renewProxy()
+                debug(`next renew at ${new Date(new Date().getTime()+ this.config.renewGap * 1000).toTimeString()}`)
             },this.config.renewGap*1000)
         }
     }
@@ -91,4 +92,6 @@ class Balancer {
     }
 }
 
-module.exports = Balancer
+exports.DefaultMethodName = DefaultMethodName
+exports.getInstance = ()=>Balancer.getInstance()
+exports.methodNameList = Balancer.methodNameList
