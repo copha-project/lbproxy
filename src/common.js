@@ -46,11 +46,15 @@ exports.daemon = async (file, args, env={}) => {
 }
 
 const loopFunc = (func, time) => {
-    const timeout = setTimeout(()=>{
-        func()
-        clearTimeout(timeout)
-        loopFunc(func, time)
-    }, time)
+    func()
+    const _loopFunc = () => {
+        const timeout = setTimeout(()=>{
+            func()
+            clearTimeout(timeout)
+            _loopFunc(func, time)
+        }, time)
+    }
+    _loopFunc()
 }
 
 exports.loopFunc = loopFunc
