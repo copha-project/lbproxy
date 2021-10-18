@@ -3,7 +3,7 @@ const Core = require('./core')
 
 exports.commandResolver = async (options) => {
   debug(options)
-  const core = new Core()
+  const core = Core.getInstance()
 
   if(options.stop){
     const pid = core.config.get('pid')
@@ -67,12 +67,6 @@ exports.commandResolver = async (options) => {
         console.log(`Daemon Error(${err.code}): ${err.message || err.msg || err}`)
       }
       return
-    }
-
-    // pre check proxy
-    if(options.method === "LRT"){
-      debug('LRT need pre renew')
-      await core.renewProxy()
     }
 
     return core.createServer(options)
