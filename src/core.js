@@ -8,7 +8,7 @@ const Proxy = require('./proxy')
 
 class Core {
     static #instance = null
-    static config = Config.getInstance()
+    #config = Config.getInstance()
 	
     constructor(){
     }
@@ -21,7 +21,7 @@ class Core {
     }
     
     get config(){
-	    return Core.config
+	    return this.#config
     }
 	
     async renewProxy(url){
