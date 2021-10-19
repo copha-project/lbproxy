@@ -48,15 +48,6 @@ class Core {
         }
     }
 
-    getProxy(){
-        const proxies = this.listProxy()
-        if(proxies.length==0){
-            throw Error('proxy pool not has proxy.')
-        }
-        // todo 添加获取代理的策略
-        return proxies[0]
-    }
-
     listProxy(){
         return this.config.proxies
     }
